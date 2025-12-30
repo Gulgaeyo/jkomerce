@@ -48,13 +48,13 @@ public class AuthController {
 
     // LOGOUT 세션 종료 (나중에 구현)
     @PostMapping("/logout")
-    public ResponseEntity<void> logout(HttpServletRequest request){
+    public ResponseEntity<?> logout(HttpServletRequest request){
 
         HttpSession session = request.getSession(false);
         if(session != null){
             session.invalidate();
         }
 
-        return ResponseEntity.ok(),build();
+        return ResponseEntity.ok().build();
     }
 }
