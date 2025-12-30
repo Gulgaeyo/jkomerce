@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jkomerce.store.mapper.ItemMapper">
+
+    <!--    List<ItemDTO> selectAllItems();-->
+    <select id="selectAllItems" resultType="com.jkomerce.store.dto.ItemDTO">
+        SELECT *
+        FROM items
+        WHERE delete_at is null
+        ORDER BY create_at
+    </select>
+    <!--    ItemDTO selectItemById(int id);-->
+    <select id="selectItemById" resultType="com.jkomerce.store.dto.ItemDTO">
+        SELECT *
+        FROM items
+        WHERE item_id = #{itemId}
+    </select>
+    <!--    int insertItem(ItemDTO item);-->
+    <insert id="insertItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO Items(
+            item_name, price, quantity, create_at
+        ) VALUES (
+            #{itemName}, #{price}, #{quantity}, current_date
+                 )
+    </insert>
+    <!--    int updateItem(ItemDTO item);-->
+    <update id="updateItem">
+        UPDATE items
+        SET update_at = CURRENT_DATE
+        WHERE item_id = #{itemId}
+    </update>
+    <!--    int deleteItem(int id);-->
+    <delete id="deleteItem" >
+        UPDATE items
+        SET delete_at = CURRENT_DATE
+        WHERE item_id = #{itemId}
+    </delete>
+    <!--    List<ItemDTO> selectItemsByName(String name);-->
+    <select id="selectItemsByName" resultType="com.jkomerce.store.dto.ItemDTO">
+        SELECT *
+        FROM items
+        WHERE item_name LIKE '%' || #{itemName} || '%'
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jkomerce.store.mapper.UserMapper">
+
+    <!--    ItemDTO selectItemById(int id);-->
+    <select id="findUserByLoginId" resultType="com.jkomerce.store.dto.UserDTO">
+        SELECT *
+        FROM Users
+        WHERE Login_id = #{loginId}
+    </select>
+
+    <select id="selectUserById" resultType="com.jkomerce.store.dto.UserDTO">
+        SELECT *
+        FROM Users
+        WHERE id = #{id}
+    </select>
+
+    <!--    int insertItem(ItemDTO item);-->
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO Users(
+            login_id, password, user_name, birth, email
+        ) VALUES (
+            #{loginId}, #{password}, #{userName}, #{birth}, #{email}
+                 )
+    </insert>
+    <!--    int updateItem(ItemDTO item);-->
+    <update id="updateUser">
+        UPDATE Users
+        SET update_at = CURRENT_DATE
+        WHERE id = #{id}
+    </update>
+    <!--    int deleteItem(int id);-->
+    <delete id="deleteUser" >
+        UPDATE Users
+        SET delete_at = CURRENT_DATE
+        WHERE id = #{id}
+    </delete>
+    <!--    List<ItemDTO> selectItemsByName(String name);-->
+
+
+
+</mapper>

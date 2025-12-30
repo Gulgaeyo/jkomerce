@@ -1,0 +1,16 @@
+package com.jkomerce.store.mapper;
+
+import com.jkomerce.store.dto.ItemDTO;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+@Mapper
+public interface ItemMapper {
+    List<ItemDTO> selectAllItems();
+    ItemDTO selectItemById(int id);
+    int insertItem(ItemDTO item);
+    int updateItem(ItemDTO item);
+    int deleteItem(int id);
+    List<ItemDTO> selectItemsByName(String name);
+}

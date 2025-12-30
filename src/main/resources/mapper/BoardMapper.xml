@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jkomerce.store.mapper.BoardMapper">
+
+    <!--    List<ItemDTO> selectAllItems();-->
+    <select id="selectAllBoards" resultType="com.jkomerce.store.dto.BoardDTO">
+        SELECT *
+        FROM boards
+        WHERE delete_at is null
+        ORDER BY create_at
+    </select>
+    <!--    ItemDTO selectItemById(int id);-->
+    <select id="selectBoardByName" resultType="com.jkomerce.store.dto.BoardDTO">
+        SELECT *
+        FROM boards
+        WHERE user_name = #{userName}
+    </select>
+
+    <select id="selectBoardById" resultType="com.jkomerce.store.dto.BoardDTO">
+        SELECT *
+        FROM boards
+        WHERE id = #{id}
+    </select>
+
+    <!--    int insertItem(ItemDTO item);-->
+    <insert id="insertBoard" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO boards(
+            user_id, user_name, title, content, image
+        ) VALUES (
+            #{userId}, #{userName}, #{title}, #{content}, #{image}
+                 )
+    </insert>
+    <!--    int updateItem(ItemDTO item);-->
+    <update id="updateBoard">
+        UPDATE boards
+        SET update_at = CURRENT_DATE
+        WHERE id = #{id}
+    </update>
+    <!--    int deleteItem(int id);-->
+    <delete id="deleteBoard" >
+        UPDATE boards
+        SET delete_at = CURRENT_DATE
+        WHERE id = #{id}
+    </delete>
+    <!--    List<ItemDTO> selectItemsByName(String name);-->
+    <select id="findBoardsByTitle" resultType="com.jkomerce.store.dto.BoardDTO">
+        SELECT *
+        FROM boards
+        WHERE title LIKE '%' || #{title} || '%'
+    </select>
+
+
+
+</mapper>
