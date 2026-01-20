@@ -10,12 +10,11 @@ public class ItemDTO {
 
     private int itemId;
     private String itemName;
-    private int quantity;
+    private int stock;
     private int price;
     private LocalDateTime createAt;
-    private LocalDateTime  updateAt;
-    private LocalDateTime  deleteAt;
-    private String detailImage;
+    private LocalDateTime updateAt;
+    private LocalDateTime deleteAt;
 
 
 }

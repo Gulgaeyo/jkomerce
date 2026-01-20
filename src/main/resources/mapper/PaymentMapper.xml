@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jkomerce.store.mapper.PaymentMapper">
+
+    <insert id="insertPayment"
+            parameterType="com.jkomerce.store.dto.PaymentDTO"
+            useGeneratedKeys="true"
+            keyProperty="paymentId">
+        INSERT INTO payments
+        (order_id, amount, status, method, provider, idempotency_key,
+         expires_at, approved_at, fail_reason, pg_tid,
+         create_at, update_at, delete_at)
+        VALUES
+        (#{orderId}, #{amount}, #{status}, #{method}, #{provider}, #{idempotencyKey},
+         #{expiresAt}, NULL, NULL, NULL,
+        NOW(), NOW(), NULL)
+    </insert>
+    <!--    ItemDTO selectItemById(int id);-->
+    <select id="selectPaymentById" parameterType="long" resultType="com.jkomerce.store.dto.PaymentDTO">
+        SELECT payment_id AS paymentId,
+               order_id AS orderID,
+               amount,
+               status,
+               method,
+               provider,
+               idempotency_key AS idempotencyKey,
+               expires_at AS expiresAt,
+               approved_at AS approvedAt,
+               fail_reason AS failReason,
+               pg_tid AS pgTid,
+               create_at AS createAt,
+               update_at AS updateAt,
+               delete_at AS deleteAt
+        FROM payments
+        WHERE payment_id = #{paymentId}
+          AND delete_at IS NULL
+    </select>
+
+    <select id="selectPaymentByIdempotencyKey" parameterType="string" resultType="com.jkomerce.store.dto.PaymentDTO">
+        SELECT payment_id AS paymentId,
+               order_id AS orderId,
+               amount,
+               status,
+               method,
+               provider,
+               idempotency_key AS idempotencyKey,
+               expires_at AS expiresAt,
+               approved_at AS approvedAt,
+               fail_reason AS failReason,
+               pg_tid AS pgTid,
+               create_at AS createAt,
+               update_at AS updateAt,
+               delete_at AS deleteAt
+        FROM payments
+        WHERE idempotency_key = #{idempotencyKey}
+          AND delete_at IS NULL
+    </select>
+
+    <!--    int insertItem(ItemDTO item);-->
+    <update id="updatePaymentToPaid">
+        UPDATE payments
+        SET status = 'PAID',
+            pg_tid = #{pgTid},
+            approved_at = NOW(),
+            update_at = NOW()
+        WHERE payment_id = #{paymentId}
+          AND status = 'REQUESTED'
+          AND delete_at IS NULL
+    </update>
+
+    <update id="updatePaymentToFailed">
+        UPDATE payments
+        SET status = 'FAILED'
+            fail_reason = #{failReason}
+            update_at = NOW()
+        WHERE payment_id = #{paymentId}
+          AND status = 'REQUESTED'
+          AND delete_at IS NULL
+    </update>
+
+</mapper>

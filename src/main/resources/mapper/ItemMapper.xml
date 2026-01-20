@@ -18,9 +18,9 @@
     <!--    int insertItem(ItemDTO item);-->
     <insert id="insertItem" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO Items(
-            item_name, price, quantity, create_at
+            item_name, price, stock, create_at
         ) VALUES (
-            #{itemName}, #{price}, #{quantity}, current_date
+            #{itemName}, #{price}, #{stock}, current_date
                  )
     </insert>
     <!--    int updateItem(ItemDTO item);-->

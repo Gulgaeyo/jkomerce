@@ -16,7 +16,7 @@ public class BoardDTO {
     private String content;
     private String image;
     private LocalDateTime createAt;
-    private LocalDateTime  updateAt;
-    private LocalDateTime  deleteAt;
+    private LocalDateTime updateAt;
+    private LocalDateTime deleteAt;
 
 }

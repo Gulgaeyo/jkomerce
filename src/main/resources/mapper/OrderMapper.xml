@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jkomerce.store.mapper.OrderMapper">
+
+    <insert id="insertOrder"
+            parameterType="com.jkomerce.store.dto.OrderDTO"
+            useGeneratedKeys="true"
+            keyProperty="orderId">
+        INSERT INTO orders(user_id, order_type, total_amount, status, create_at)
+        VALUES (#{userId}, #{orderType}, #{totalAmount}, #{status}, NOW())
+    </insert>
+
+    <insert id="insertOrderItem"
+            parameterType="com.jkomerce.store.dto.OrderItemDTO"
+            useGeneratedKeys="true"
+            keyProperty="seq">
+        INSERT INTO order_items (order_id, item_id, quantity, unit_price, line_amount, create_at)
+        VALUES (#{orderId}, #{itemId}, #{quantity}, #{unitPrice}, #{lineAmount}, NOW())
+    </insert>
+
+    <select id="selectOrderById" parameterType="long" resultType="com.jkomerce.store.dto.OrderDTO">
+        SELECT order_id AS orderId,
+               user_id AS userId,
+               order_type AS orderType,
+               total_amount AS totalAmount,
+               status
+        FROM orders
+        WHERE order_id = #{orderId}
+          AND delete_at is null
+    </select>
+
+    <update id="updateOrderStatus">
+        UPDATE orders
+        SET status = #{status},
+            update_at = NOW()
+        WHERE order_id = #{orderId}
+          AND delete_at IS NULL
+    </update>
+
+</mapper>
