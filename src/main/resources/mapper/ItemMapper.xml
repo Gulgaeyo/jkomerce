@@ -42,6 +42,15 @@
         WHERE item_name LIKE '%' || #{itemName} || '%'
     </select>
 
+    <update id="decreaseStock">
+        UPDATE items
+        SET stock = stock - #{quantity},
+            update_at = NOW()
+        WHERE item_id = #{itemId}
+          AND stock >= #{quantity}
+          AND delete_at IS NULL
+    </update>
+
 
 
 </mapper>

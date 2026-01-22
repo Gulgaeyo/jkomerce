@@ -38,11 +38,11 @@ public class OrderService {
                 throw new IllegalArgumentException("수량이 올바르지 않습니다. quantity=" + r.getQuantity());
             }
 
-            // 재고 체크
-            int stock = item.getStock();
-            if (stock < r.getQuantity()){
-                throw new IllegalArgumentException("재고 부족. stock=" + stock);
-            }
+//            // 재고 체크
+//            int stock = item.getStock();
+//            if (stock < r.getQuantity()){
+//                throw new IllegalArgumentException("재고 부족. stock=" + stock);
+//            }
 
             int unitPrice = item.getPrice();
             int lineAmount = unitPrice * r.getQuantity();

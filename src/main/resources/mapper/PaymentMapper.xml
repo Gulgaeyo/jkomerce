@@ -71,12 +71,36 @@
 
     <update id="updatePaymentToFailed">
         UPDATE payments
-        SET status = 'FAILED'
-            fail_reason = #{failReason}
+        SET status = 'FAILED',
+            fail_reason = #{failReason},
             update_at = NOW()
         WHERE payment_id = #{paymentId}
           AND status = 'REQUESTED'
           AND delete_at IS NULL
     </update>
+
+    <!-- 멱동성 추가 및 Pg_tid 과생성 방지-->
+    <select id="selectActiveRequestedByOrderId" parameterType="long" resultType="com.jkomerce.store.dto.PaymentDTO">
+        SELECT payment_id AS paymentId,
+               order_id AS orderId,
+               amount,
+               status,
+               method,
+               provider,
+               idempotency_key AS idempotencyKey,
+               expires_at AS expiresAt,
+               fail_reason AS failReason,
+               pg_tid AS pgTid,
+               create_at AS createAt,
+               update_at AS updateAt,
+               delete_at AS deleteAt
+        FROM payments
+        WHERE order_id = #{orderId}
+          AND status = 'REQUESTED'
+          AND expires_at > NOW()
+          AND delete_at IS NULL
+        ORDER BY payment_id DESC
+        LIMIT 1
+    </select>
 
 </mapper>

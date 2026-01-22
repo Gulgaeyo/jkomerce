@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class OrderDTO {
-    private Integer orderId;
+    private Long orderId;
     private Integer userId;
     private String orderType; // DIRECT / CART
     private Integer totalAmount;
-    private String status; //PENDING / PAID
+    private String status;    // PENDING / PAID
 }

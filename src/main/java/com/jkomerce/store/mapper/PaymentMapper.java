@@ -18,4 +18,6 @@ public interface PaymentMapper {
 
     int updatePaymentToFailed(@Param("paymentId") Long paymentId,
                               @Param("failReason") String failReason);
+
+    PaymentDTO selectActiveRequestedByOrderId(@Param("orderId") Long orderId);
 }

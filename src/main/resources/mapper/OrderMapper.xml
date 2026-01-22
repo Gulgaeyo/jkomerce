@@ -40,4 +40,13 @@
           AND delete_at IS NULL
     </update>
 
+    <select id="selectOrderItemsForStock">
+        SELECT item_id AS itemId,
+               sum(quantity) AS quantity
+        FROM order_items
+        WHERE order_id = #{orderId}
+          AND delete_at is null
+        GROUP BY item_id
+    </select>
+
 </mapper>
