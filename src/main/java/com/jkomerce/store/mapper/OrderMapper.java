@@ -21,5 +21,15 @@ public interface OrderMapper {
 
     List<OrderItemStockDTO> selectOrderItemsForStock(@Param("orderId") long orderId);
 
+    // 주문 조회
+    OrderDTO selectOrderByIdAndUserId(@Param("orderId") Long orderId,
+                                      @Param("userId") Integer userId);
+
+    List<OrderItemDTO> selectOrderItemsByOrderId(@Param("orderId") Long orderId);
+    List<OrderDTO> selectOrdersByUserId(@Param("userId") Integer userId,
+                                       @Param("limit") int limit, @Param("offset") int offset, @Param("status") String status);
+
+
+
 
 }

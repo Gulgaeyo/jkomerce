@@ -3,13 +3,15 @@ package com.jkomerce.store.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
-public class OrderDTO {
+public class OrderDetailResponseDTO {
     private Long orderId;
     private Integer userId;
-    private String orderType; // DIRECT / CART
+    private String orderType;
     private Integer totalAmount;
-    private String status;    // PENDING / PAID
+    private String status;
     private LocalDateTime createAt;
+    private List<OrderItemDTO> items;
 }

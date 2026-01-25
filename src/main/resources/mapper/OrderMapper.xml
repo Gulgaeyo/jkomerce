@@ -26,7 +26,8 @@
                user_id AS userId,
                order_type AS orderType,
                total_amount AS totalAmount,
-               status
+               status AS "status",
+               create_at AS "createAt"
         FROM orders
         WHERE order_id = #{orderId}
           AND delete_at is null
@@ -47,6 +48,53 @@
         WHERE order_id = #{orderId}
           AND delete_at is null
         GROUP BY item_id
+    </select>
+
+    <select id="selectOrderByIdAndUserId" resultType="com.jkomerce.store.dto.OrderDTO">
+        SELECT
+            order_id AS "orderId",
+            user_id AS "userId",
+            order_type AS "orderType",
+            total_amount AS "totalAmount",
+            status AS "status",
+            create_at AS "createAt"
+        FROM orders
+        WHERE order_id = #{orderId}
+          AND user_id = #{userId}
+          AND delete_at IS NULL
+    </select>
+
+    <select id="selectOrderItemsByOrderId" resultType="com.jkomerce.store.dto.OrderItemDTO">
+        SELECT
+            seq AS "seq",
+            order_id AS "orderId",
+            item_id AS "itemId",
+            quantity AS "quantity",
+            unit_price AS "unitPrice",
+            line_amount AS "lineAmount",
+            create_at AS "createAt"
+        FROM order_items
+        WHERE order_id = #{orderId}
+          AND delete_at IS NULL
+        ORDER BY seq ASC
+    </select>
+
+    <select id="selectOrdersByUserId" resultType="com.jkomerce.store.dto.OrderDTO">
+        SELECT
+            order_id AS "orderId",
+            user_id AS "userId",
+            order_type AS "orderType",
+            total_amount AS "totalAmount",
+            status AS "status",
+            create_at AS "createAt"
+        FROM orders
+        WHERE user_id = #{userId}
+          AND delete_at IS NULL
+        <if test="status != null and status != ''">
+          AND status = #{status}
+        </if>
+        ORDER BY order_id DESC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
 </mapper>
