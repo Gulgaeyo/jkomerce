@@ -100,7 +100,7 @@ public class OrderService {
 
         List<OrderItemDTO> orderItems = new ArrayList<>();
 
-        int totalAmount = 0;
+        Long totalAmount = 0L;
         for(CartItemForOrderDTO item : items){
             Long itemId = item.getItemId();
             Integer quantity = item.getQuantity();
