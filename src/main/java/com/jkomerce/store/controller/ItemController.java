@@ -26,7 +26,7 @@ public class ItemController {
 
     @GetMapping("/detail/{id}")
     @ResponseBody
-    public ItemDTO getDetailPage(@PathVariable int id) {
+    public ItemDTO getDetailPage(@PathVariable Long id) {
         return itemService.getItemById(id);
     }
 

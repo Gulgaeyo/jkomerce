@@ -29,7 +29,5 @@ public interface OrderMapper {
     List<OrderDTO> selectOrdersByUserId(@Param("userId") Integer userId,
                                        @Param("limit") int limit, @Param("offset") int offset, @Param("status") String status);
 
-
-
-
+    int updateOrderTotalAmount(@Param("orderId") Long orderId, @Param("totalAmount") Long totalAmount);
 }

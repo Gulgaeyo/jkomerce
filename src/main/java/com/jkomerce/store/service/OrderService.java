@@ -1,6 +1,7 @@
 package com.jkomerce.store.service;
 
 import com.jkomerce.store.dto.*;
+import com.jkomerce.store.mapper.CartMapper;
 import com.jkomerce.store.mapper.ItemMapper;
 import com.jkomerce.store.mapper.OrderMapper;
 import jakarta.servlet.http.HttpSession;
@@ -15,10 +16,12 @@ public class OrderService {
 
     private final OrderMapper orderMapper;
     private final ItemMapper itemMapper;
+    private final CartMapper cartMapper;
 
-    public OrderService(OrderMapper orderMapper, ItemMapper itemMapper){
+    public OrderService(OrderMapper orderMapper, ItemMapper itemMapper, CartMapper cartMapper){
         this.orderMapper = orderMapper;
         this.itemMapper = itemMapper;
+        this.cartMapper = cartMapper;
     }
 
     @Transactional
@@ -44,8 +47,8 @@ public class OrderService {
 //                throw new IllegalArgumentException("재고 부족. stock=" + stock);
 //            }
 
-            int unitPrice = item.getPrice();
-            int lineAmount = unitPrice * r.getQuantity();
+            Long unitPrice = item.getPrice();
+            Long lineAmount = unitPrice * r.getQuantity();
             totalAmount += lineAmount;
 
             OrderItemDTO oi = new OrderItemDTO();
@@ -72,6 +75,66 @@ public class OrderService {
         }
 
         return order;
+    }
+
+    @Transactional
+    public Long createOrderFromCart(HttpSession session){
+        Integer userId = getUserIdFromSession(session);
+
+        Long cartId = cartMapper.selectActiveCartIdByUserId(userId);
+        if(cartId == null) throw new IllegalArgumentException("장바구니가 비어있습니다");
+
+        List<CartItemForOrderDTO> items= cartMapper.selectCartItemsForOrder(cartId);
+        if(items.isEmpty()) throw new IllegalArgumentException("장바구니가 비어있습니다.");
+
+
+        OrderDTO order = new OrderDTO();
+        order.setUserId(userId);
+        order.setOrderType("CART");
+        order.setTotalAmount(0);
+        order.setStatus("PENDING");;
+        orderMapper.insertOrder(order);
+
+        Long orderId = order.getOrderId();
+        if(orderId == null) throw new IllegalArgumentException("orderId 생성 실패");
+
+        List<OrderItemDTO> orderItems = new ArrayList<>();
+
+        int totalAmount = 0;
+        for(CartItemForOrderDTO item : items){
+            Long itemId = item.getItemId();
+            Integer quantity = item.getQuantity();
+            if(itemId == null) throw new IllegalArgumentException("itemId가 비어있습니다.");
+            if(quantity == null || quantity <= 0) throw new IllegalArgumentException("수량이 올바르지 않습니다.");
+
+            ItemDTO itemDTO = itemMapper.selectItemById(itemId);
+            if(itemDTO == null) throw new IllegalArgumentException("상품이 존재하지 않습니다.");
+
+            //orderItem에 담기
+            Long unitPrice = (Long) itemDTO.getPrice();
+            Long lineAmount = unitPrice * quantity;
+
+            OrderItemDTO oi = new OrderItemDTO();
+            oi.setItemId(itemId);
+            oi.setQuantity(quantity);
+            oi.setOrderId(order.getOrderId());
+            oi.setUnitPrice(unitPrice);
+            oi.setLineAmount(lineAmount);
+
+            orderItems.add(oi);
+            totalAmount += lineAmount;
+        }
+
+        // 왜 이헐게 해야하는지?
+        orderMapper.updateOrderTotalAmount(orderId, totalAmount);
+
+        for (OrderItemDTO oi : orderItems) {
+            orderMapper.insertOrderItem(oi);
+        }
+
+        cartMapper.deleteCartItemsByCartId(cartId);
+
+        return orderId;
     }
 
     private Integer getUserIdFromSession(HttpSession session) {

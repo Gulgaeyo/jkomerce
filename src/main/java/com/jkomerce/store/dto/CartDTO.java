@@ -2,19 +2,15 @@ package com.jkomerce.store.dto;
 
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-public class ItemDTO {
+public class CartDTO {
 
-    private Long itemId;
-    private String itemName;
-    private int stock;
-    private Long price;
+    private Long cartId;
+    private Integer userId;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     private LocalDateTime deleteAt;
-
 
 }

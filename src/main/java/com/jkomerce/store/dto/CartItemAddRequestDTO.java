@@ -3,8 +3,9 @@ package com.jkomerce.store.dto;
 import lombok.Data;
 
 @Data
-public class OrderItemRequestDTO {
+public class CartItemAddRequestDTO {
+
     private Long itemId;
-    private int quantity;
+    private Integer quantity;
 
 }

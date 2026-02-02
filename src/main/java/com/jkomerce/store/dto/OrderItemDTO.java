@@ -6,8 +6,8 @@ import lombok.Data;
 public class OrderItemDTO {
     private Integer seq;
     private Long orderId;
-    private Integer itemId;
+    private Long itemId;
     private Integer quantity;
-    private Integer unitPrice;
-    private Integer lineAmount;
+    private Long unitPrice;
+    private Long lineAmount;
 }

@@ -1,5 +1,6 @@
 package com.jkomerce.store.service;
 
+import com.jkomerce.store.domain.OrderStatus;
 import com.jkomerce.store.dto.OrderDTO;
 import com.jkomerce.store.dto.OrderDetailResponseDTO;
 import com.jkomerce.store.dto.OrderItemDTO;
@@ -49,7 +50,12 @@ public class OrderQueryService {
         int s = (size == null || size < 1) ? 20 : Math.min(size, 100);
         int offset = (p - 1) * s;
 
-        return orderMapper.selectOrdersByUserId(userId, s, offset, status);
+        // status enum 활용 검즘/ 정규화
+        OrderStatus st = OrderStatus.fromNullableParam(status);
+        String normalizedStatus = (st == null) ? null : st.toDbValue();
+
+
+        return orderMapper.selectOrdersByUserId(userId, s, offset, normalizedStatus);
     }
 
     private Integer getUserIdFromSession(HttpSession session) {

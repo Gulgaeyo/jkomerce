@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface ItemMapper {
     List<ItemDTO> selectAllItems();
-    ItemDTO selectItemById(int id);
+    ItemDTO selectItemById(Long id);
     int insertItem(ItemDTO item);
     int updateItem(ItemDTO item);
     int deleteItem(int id);

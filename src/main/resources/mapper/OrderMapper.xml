@@ -90,11 +90,19 @@
         FROM orders
         WHERE user_id = #{userId}
           AND delete_at IS NULL
-        <if test="status != null and status != ''">
+        <if test="status != null and status != '' ">
           AND status = #{status}
         </if>
-        ORDER BY order_id DESC
+        ORDER BY create_at DESC NULLS LAST, order_id DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
+
+    <update id="updateOrderTotalAmount">
+        UPDATE orders
+        SET total_amount = #{totalAmount},
+            update_at = NOW()
+        WHERE order_id = #{orderId}
+          AND delete_at IS NULL
+    </update>
 
 </mapper>

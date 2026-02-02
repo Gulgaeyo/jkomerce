@@ -14,7 +14,8 @@ public class ItemService {
 
     public List<ItemDTO> getItems() {return itemMapper.selectAllItems();}
 
-    public ItemDTO getItemById(Integer id) {return itemMapper.selectItemById(id);}
+    public ItemDTO getItemById(Long id) {return itemMapper.selectItemById(id);}
+
 
     public int createItem(ItemDTO itemDTO) {return itemMapper.insertItem(itemDTO);}
     public int updateItem(ItemDTO itemDTO) {return itemMapper.updateItem(itemDTO);}

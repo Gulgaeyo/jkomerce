@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jkomerce.store.mapper.CartMapper">
+
+<!--    ======================================
+        RESULT MAP
+        ======================================-->
+    <resultMap id="CartDTOMap" type="com.jkomerce.store.dto.CartDTO">
+        <id     column="cart_id"   property="cartId"/>
+        <result column="user_id"   property="userId"/>
+        <result column="create_at" property="createAt"/>
+        <result column="update_at" property="updateAt"/>
+        <result column="delete_at" property="deleteAt"/>
+    </resultMap>
+
+    <resultMap id="CartItemDTOMap" type="com.jkomerce.store.dto.CartItemDTO">
+        <id     column="seq"       property="seq"/>
+        <result column="cart_id"   property="cartId"/>
+        <result column="item_id"   property="itemId"/>
+        <result column="quantity"  property="quantity"/>
+        <result column="create_at" property="createAt"/>
+        <result column="update_at" property="updateAt"/>
+    </resultMap>
+
+<!--    Long selectActiveCartIdByUserId(Integer userId);-->
+    <select id="selectActiveCartIdByUserId" resultType="java.lang.Long">
+        SELECT cart_id AS cartId
+        FROM carts
+        WHERE user_id = #{userId}
+          AND delete_at IS NULL
+        ORDER BY cart_id DESC
+        LIMIT 1
+    </select>
+<!--    int insertCart(CartDTO cart);-->
+    <insert id="insertCart"
+            parameterType="com.jkomerce.store.dto.CartDTO"
+            useGeneratedKeys="true"
+            keyProperty="cartId"
+            keyColumn="cart_id">
+        INSERT INTO carts(user_id, create_at)
+        VALUES (#{userId}, NOW() )
+    </insert>
+<!--    int increaseCartItemQuantity(Long cartId, Long itemId, Integer quantity);-->
+    <update id="increaseCartItemQuantity">
+        UPDATE cart_items
+        SET quantity = quantity + #{quantity},
+            update_at = NOW()
+        WHERE cart_id = #{cartId}
+          AND item_id = #{itemId}
+    </update>
+
+    <insert id="upsertCartItem">
+        INSERT INTO cart_items (cart_id, item_id, quantity, create_at)
+        VALUES (#{cartId}, #{itemId}, #{quantity}, NOW())
+        ON CONFLICT (cart_id, item_id)
+        DO UPDATE SET
+           quantity = cart_items.quantity + EXCLUDED.quantity,
+           update_at = NOW()
+    </insert>
+
+    <select id="selectCartItemsByCartId" resultMap="CartItemDTOMap">
+        SELECT
+            seq,
+            cart_id,
+            item_id,
+            quantity,
+            create_at,
+            update_at
+        FROM cart_items
+        WHERE cart_id = #{cartId}
+        ORDER BY seq ASC
+    </select>
+
+    <delete id="deleteCartItem">
+        DELETE FROM cart_items
+        WHERE cart_id = #{cartId}
+          AND item_id = #{itemId}
+    </delete>
+
+    <update id="updateCartItemQuantity">
+        UPDATE cart_items
+        SET quantity = #{quantity},
+            update_at = NOW()
+        WHERE cart_id = #{cartId}
+          AND item_id = #{itemId}
+    </update>
+
+    <select id="selectCartItemsForOrder" >
+        SELECT item_id AS itemId,
+               quantity
+        FROM cart_items
+        WHERE cart_id = #{cartId}
+        ORDER BY seq ASC
+
+    </select>
+
+    <delete id="deleteCartItemsByCartId">
+        DELETE FROM cart_items
+        WHERE cart_id = #{cartId}
+    </delete>
+
+
+
+
+    <!--&lt;!&ndash;    int restoreCartItem(Long cartId, Long itemId, Integer quantity);&ndash;&gt;-->
+<!--    <update id="restoreCartItem">-->
+<!--        UPDATE cart_items-->
+<!--        SET delete_at = NULL,-->
+<!--            quantity = #{quantity},-->
+<!--            update_at = NOW()-->
+<!--        WHERE cart_id = #{cartId}-->
+<!--          AND item_id = #{itemId}-->
+<!--          AND delete_at IS NOT NULL-->
+<!--    </update>-->
+<!--&lt;!&ndash;    int insertCartItem(Long cartId, Long itemId, Integer quantity);&ndash;&gt;-->
+<!--    <insert id="insertCartItem">-->
+<!--        INSERT INTO cart_items (cart_id, item_id, quantity, create_at)-->
+<!--        VALUES (#{cartId}, #{itemId}, #{quantity}, NOW())-->
+<!--    </insert>-->
+<!--&lt;!&ndash;    List<CartItemDTO> selectCartItemsByCartId(Long cartId);&ndash;&gt;-->
+
+</mapper>

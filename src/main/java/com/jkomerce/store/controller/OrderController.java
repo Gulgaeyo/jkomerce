@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,6 +48,11 @@ public class OrderController {
         return ResponseEntity.ok(orderQueryService.getMyOrders(page, size, status, session));
     }
 
+    @PostMapping("/cart")
+    public Map<String, Object> createOrderFromCart(HttpSession session) {
+        Long orderId = orderService.createOrderFromCart(session);
+        return Map.of("orderId", orderId);
+    }
 
 
 
