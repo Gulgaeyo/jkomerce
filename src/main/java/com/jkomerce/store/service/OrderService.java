@@ -1,6 +1,7 @@
 package com.jkomerce.store.service;
 
 import com.jkomerce.store.dto.*;
+import com.jkomerce.store.exception.UnauthorizedException;
 import com.jkomerce.store.mapper.CartMapper;
 import com.jkomerce.store.mapper.ItemMapper;
 import com.jkomerce.store.mapper.OrderMapper;
@@ -132,8 +133,6 @@ public class OrderService {
             orderMapper.insertOrderItem(oi);
         }
 
-        cartMapper.deleteCartItemsByCartId(cartId);
-
         return orderId;
     }
 
@@ -145,6 +144,6 @@ public class OrderService {
         Object userObj = session.getAttribute("user");
         if (userObj instanceof UserDTO) return ((UserDTO) userObj).getId();
 
-        throw new IllegalArgumentException("로그인이 필요합니다.");
+        throw new UnauthorizedException("로그인이 필요합니다.");
     }
 }

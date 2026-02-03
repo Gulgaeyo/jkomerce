@@ -4,6 +4,7 @@ import com.jkomerce.store.dto.OrderDTO;
 import com.jkomerce.store.dto.OrderItemStockDTO;
 import com.jkomerce.store.dto.PaymentCreateRequestDTO;
 import com.jkomerce.store.dto.PaymentDTO;
+import com.jkomerce.store.mapper.CartMapper;
 import com.jkomerce.store.mapper.ItemMapper;
 import com.jkomerce.store.mapper.OrderMapper;
 import com.jkomerce.store.mapper.PaymentMapper;
@@ -20,12 +21,14 @@ public class PaymentService {
     private final OrderMapper orderMapper;
     private final ItemMapper itemMapper;
     private final PaymentFailService paymentFailService;
+    private final CartMapper cartMapper;
 
-    public PaymentService(PaymentMapper paymentMapper, OrderMapper orderMapper, ItemMapper itemMapper, PaymentFailService paymentFailService) {
+    public PaymentService(PaymentMapper paymentMapper, OrderMapper orderMapper, ItemMapper itemMapper, PaymentFailService paymentFailService, CartMapper cartMapper) {
         this.paymentMapper = paymentMapper;
         this.orderMapper = orderMapper;
         this.itemMapper = itemMapper;
         this.paymentFailService = paymentFailService;
+        this.cartMapper = cartMapper;
     }
 
     @Transactional
@@ -142,6 +145,14 @@ public class PaymentService {
 
         // order -> PAID 업데이트
         orderMapper.updateOrderStatus(order.getOrderId(), "PAID");
+
+        // CART
+        if("CART".equals(order.getOrderType())) {
+            Long cartId = cartMapper.selectActiveCartIdByUserId(order.getUserId());
+            if(cartId != null) {
+                cartMapper.deleteCartItemsByCartId(cartId);
+            }
+        }
 
         // payment 재조회 반환
         return paymentMapper.selectPaymentById(paymentId);

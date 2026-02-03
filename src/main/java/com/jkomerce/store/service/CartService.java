@@ -1,11 +1,9 @@
 package com.jkomerce.store.service;
 
-import com.jkomerce.store.dto.CartDTO;
-import com.jkomerce.store.dto.CartItemAddRequestDTO;
-import com.jkomerce.store.dto.CartItemDTO;
-import com.jkomerce.store.dto.UserDTO;
+import com.jkomerce.store.dto.*;
 import com.jkomerce.store.exception.UnauthorizedException;
 import com.jkomerce.store.mapper.CartMapper;
+import com.jkomerce.store.mapper.ItemMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +17,7 @@ import java.util.List;
 public class CartService {
 
     private final CartMapper cartMapper;
+    private final ItemMapper itemMapper;
 
     @Transactional
     public Long getOrCreateCartId(Integer userId){
@@ -39,6 +38,11 @@ public class CartService {
     @Transactional
     public List<CartItemDTO> addItem(CartItemAddRequestDTO req, HttpSession session) {
         Integer userId = getUserIdFromSession(session);
+
+        ItemDTO item = itemMapper.selectItemById(req.getItemId());
+        if(item == null){
+            throw new IllegalArgumentException("상품이 존재하지 않습니다.");
+        }
 
         // 요청 검증
         if(req == null) throw new IllegalArgumentException("요청이 비어있습니다.");
