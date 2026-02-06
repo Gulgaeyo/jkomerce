@@ -1,5 +1,7 @@
 package com.jkomerce.store.service;
 
+import com.jkomerce.store.domain.OrderStatus;
+import com.jkomerce.store.domain.PaymentStatus;
 import com.jkomerce.store.mapper.OrderMapper;
 import com.jkomerce.store.mapper.PaymentMapper;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,12 @@ public class PaymentFailService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void failPaymentAndCancelOrder(Long paymentId, Long orderId, String reason){
         paymentMapper.updatePaymentToFailed(paymentId, reason);
-        orderMapper.updateOrderStatus(orderId, "CANCELED");
+        orderMapper.updateOrderStatus(orderId, OrderStatus.CANCELED.toDbValue());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void expirePaymentAndOrder(Long paymentId, Long orderId){
-        paymentMapper.updatePaymentToFailed(paymentId, "EXPIRED");
-        orderMapper.updateOrderStatus(orderId, "EXPIRED");
+        paymentMapper.updatePaymentToFailed(paymentId, PaymentStatus.FAILED.toDbValue());
+        orderMapper.updateOrderStatus(orderId, OrderStatus.EXPIRED.toDbValue());
     }
 }

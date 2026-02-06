@@ -9,7 +9,7 @@ public class OrderDTO {
     private Long orderId;
     private Integer userId;
     private String orderType; // DIRECT / CART
-    private Integer totalAmount;
+    private Long totalAmount;
     private String status;    // PENDING / PAID
     private LocalDateTime createAt;
 }

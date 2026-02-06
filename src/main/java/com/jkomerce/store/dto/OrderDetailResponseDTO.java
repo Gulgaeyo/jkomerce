@@ -10,7 +10,7 @@ public class OrderDetailResponseDTO {
     private Long orderId;
     private Integer userId;
     private String orderType;
-    private Integer totalAmount;
+    private Long totalAmount;
     private String status;
     private LocalDateTime createAt;
     private List<OrderItemDTO> items;

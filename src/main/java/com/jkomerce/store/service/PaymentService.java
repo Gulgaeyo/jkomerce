@@ -1,5 +1,8 @@
 package com.jkomerce.store.service;
 
+import com.jkomerce.store.domain.OrderStatus;
+import com.jkomerce.store.domain.OrderType;
+import com.jkomerce.store.domain.PaymentStatus;
 import com.jkomerce.store.dto.OrderDTO;
 import com.jkomerce.store.dto.OrderItemStockDTO;
 import com.jkomerce.store.dto.PaymentCreateRequestDTO;
@@ -47,14 +50,16 @@ public class PaymentService {
         OrderDTO order = orderMapper.selectOrderById(req.getOrderId());
         if(order == null) throw new IllegalStateException("주문이 존재하지 않습니다.(orderId is null.)");
 
-        if(!"PENDING".equals(order.getStatus())){
+        OrderStatus orderStatus = OrderStatus.fromRequired(order.getStatus());
+
+        if(orderStatus != OrderStatus.PENDING){
             throw new IllegalStateException("결제 가능한 주문 상태가 아닙니다.(Status != PENDING.)");
         }
 
         PaymentDTO payment = new PaymentDTO();
         payment.setOrderId(req.getOrderId());
         payment.setAmount(order.getTotalAmount().longValue());
-        payment.setStatus("REQUESTED");
+        payment.setStatus(PaymentStatus.REQUESTED.toDbValue());
         payment.setMethod(req.getMethod());
         payment.setProvider(req.getProvider());
         payment.setIdempotencyKey(req.getIdempotencyKey());
@@ -70,13 +75,14 @@ public class PaymentService {
         //payment 조회
         if(payment == null) throw new IllegalStateException("결제가 존재하지 않습니다.(PaymentId is null.)");
 
+        PaymentStatus paymentStatus = PaymentStatus.fromRequired(payment.getStatus());
         //멱등성 유지 (Status == PAID 이면 결제 반환)
-        if("PAID".equals(payment.getStatus())){
+        if(paymentStatus == PaymentStatus.PAID){
             return payment;
         }
 
         // REQUESTED 가 아니면 409 던짐
-        if(!"REQUESTED".equals(payment.getStatus())){
+        if(paymentStatus != PaymentStatus.REQUESTED){
             throw new IllegalStateException("승인 가능한 결제 상태가 아닙니다.(Status != REQUESTED.)");
         }
 
@@ -87,20 +93,24 @@ public class PaymentService {
             throw new IllegalStateException("결제 요청이 만료되었습니다.");
         }
 
+
+
         // order 조회 + PENDING 확인 -------------------------------------------------
         OrderDTO order = orderMapper.selectOrderById(payment.getOrderId());
         if(order == null){
             throw new IllegalArgumentException("주문이 존재하지 않습니다.");
         }
 
+        OrderStatus orderStatus = OrderStatus.fromRequired(order.getStatus());
+
         // 주문이 미미 PAID면 (상태 꼬임 방지용) 결제 최신값 반환
-        if ("PAID".equals(order.getStatus())) {
+        if (orderStatus == OrderStatus.PAID) {
             // payment도 PAID일 가능성이 높지만, 최신으로 다시 읽어서 반환
             PaymentDTO lastest = paymentMapper.selectPaymentById(payment.getPaymentId());
             return lastest != null ? lastest : payment;
         }
 
-        if (!"PENDING".equals(order.getStatus())){
+        if (orderStatus != OrderStatus.PENDING){
             throw new IllegalStateException("결제 가능한 주문 상태가 아닙니다. status= "+ order.getStatus());
         }
         // ----------------------------------------------------------
@@ -135,19 +145,20 @@ public class PaymentService {
         // payment -> PAID 업데이트 (경쟁 상황 대비: status='REQUESTED' 조건 권장)
         int paidUpdated = paymentMapper.updatePaymentToPaid(paymentId, pgTid);
         if (paidUpdated == 0){
-            PaymentDTO lastest = paymentMapper.selectPaymentById(payment.getPaymentId());
-            if(lastest != null && "PAID".equals(lastest.getStatus())){
-                return lastest;
+            PaymentDTO lastest = paymentMapper.selectPaymentById(paymentId);
+            if(lastest != null){
+                PaymentStatus lastestStatus = PaymentStatus.fromRequired(lastest.getStatus());
+                if (lastestStatus ==  PaymentStatus.PAID) return lastest;
             }
-
             throw new IllegalStateException("결제 승인 처리 실패");
         }
 
         // order -> PAID 업데이트
-        orderMapper.updateOrderStatus(order.getOrderId(), "PAID");
+        orderMapper.updateOrderStatus(order.getOrderId(), OrderStatus.PAID.toDbValue());
 
+        OrderType orderType = OrderType.fromRequired(order.getOrderType());
         // CART
-        if("CART".equals(order.getOrderType())) {
+        if(orderType == OrderType.CART) {
             Long cartId = cartMapper.selectActiveCartIdByUserId(order.getUserId());
             if(cartId != null) {
                 cartMapper.deleteCartItemsByCartId(cartId);
@@ -163,14 +174,15 @@ public class PaymentService {
         PaymentDTO payment = paymentMapper.selectPaymentById(paymentId);
         if(payment == null) throw new IllegalStateException("결제가 존재하지 않습니다.");
 
-        if(!"REQUESTED".equals(payment.getStatus())){
+        PaymentStatus paymentStatus = PaymentStatus.fromRequired(payment.getStatus());
+        if(paymentStatus != PaymentStatus.REQUESTED){
             throw new IllegalStateException("실패 처리 가능한 결제 상태가 아닙니다.");
         }
 
         int updated = paymentMapper.updatePaymentToFailed(paymentId, reason);
         if(updated == 0) throw new IllegalStateException("결제 실패 처리 실패");
 
-        orderMapper.updateOrderStatus(payment.getOrderId(), "CANCELED");
+        orderMapper.updateOrderStatus(payment.getOrderId(), OrderStatus.CANCELED.toDbValue());
 
         return paymentMapper.selectPaymentById(paymentId);
 

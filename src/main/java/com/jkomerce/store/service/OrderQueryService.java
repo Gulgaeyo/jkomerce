@@ -1,6 +1,7 @@
 package com.jkomerce.store.service;
 
 import com.jkomerce.store.domain.OrderStatus;
+import com.jkomerce.store.domain.OrderType;
 import com.jkomerce.store.dto.OrderDTO;
 import com.jkomerce.store.dto.OrderDetailResponseDTO;
 import com.jkomerce.store.dto.OrderItemDTO;
@@ -32,9 +33,10 @@ public class OrderQueryService {
 
         // 3) 조립
         OrderDetailResponseDTO res = new OrderDetailResponseDTO();
+        OrderType orderType = OrderType.fromRequired(order.getOrderType());
         res.setOrderId(order.getOrderId());
         res.setUserId(order.getUserId());
-        res.setOrderType(order.getOrderType());
+        res.setOrderType(orderType.toDbValue());
         res.setTotalAmount(order.getTotalAmount());
         res.setStatus(order.getStatus());
         res.setCreateAt(order.getCreateAt());

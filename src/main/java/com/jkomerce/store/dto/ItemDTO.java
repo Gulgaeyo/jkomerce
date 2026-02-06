@@ -10,7 +10,7 @@ public class ItemDTO {
 
     private Long itemId;
     private String itemName;
-    private int stock;
+    private Integer stock;
     private Long price;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;

@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @Data
 public class BoardDTO {
 
-    private int id;
-    private int userId;
+    private Long id;
+    private Integer userId;
     private String userName;
     private String title;
     private String content;

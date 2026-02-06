@@ -26,8 +26,10 @@ public class CartService {
         if(cartId == null){
             CartDTO cart = new CartDTO();
             cart.setUserId(userId);
+            // cartId 생성
             cartMapper.insertCart(cart);
             Long newCartId = cart.getCartId();
+            // cartId 없을 시 409 에러 떨어짐
             if (newCartId == null) throw new IllegalStateException("cartId 생성 실패");
             return newCartId;
         }
@@ -41,10 +43,12 @@ public class CartService {
 
         ItemDTO item = itemMapper.selectItemById(req.getItemId());
         if(item == null){
+            // 401
             throw new IllegalArgumentException("상품이 존재하지 않습니다.");
         }
 
         // 요청 검증
+        // throw 400
         if(req == null) throw new IllegalArgumentException("요청이 비어있습니다.");
         if(req.getItemId() == null) throw new IllegalArgumentException("itemId가 필요합니다.");
         if(req.getQuantity() == null || req.getQuantity() <= 0)
@@ -52,6 +56,7 @@ public class CartService {
 
         Long cartId = getOrCreateCartId(userId);
 
+        // upsertCart (Transactional)
         int affected = cartMapper.upsertCartItem(cartId, req.getItemId(), req.getQuantity());
         if(affected == 0) throw new IllegalStateException("장바구니 반영 실패");
 
