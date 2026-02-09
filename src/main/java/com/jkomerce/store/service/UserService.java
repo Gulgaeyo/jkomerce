@@ -50,7 +50,7 @@ public class UserService {
     }
 
     //내 정보 조회시 사용
-    public UserDTO selectUserById(int id) {
+    public UserDTO selectUserById(Long id) {
         return userMapper.selectUserById(id);
     }
 
@@ -60,7 +60,7 @@ public class UserService {
     }
 
     @Transactional
-    public int deleteUser(int id) {
+    public int deleteUser(Long id) {
         return userMapper.deleteUser(id);
     }
 

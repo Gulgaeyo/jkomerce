@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class CartDTO {
 
     private Long cartId;
-    private Integer userId;
+    private Long userId;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     private LocalDateTime deleteAt;

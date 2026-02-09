@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper
 public interface CartMapper {
 
-    Long selectActiveCartIdByUserId(@Param("userId") Integer userId);
+    Long selectActiveCartIdByUserId(@Param("userId") Long userId);
     int insertCart(CartDTO cart);
     int increaseCartItemQuantity( @Param("cartId") Long cartId ,
                                   @Param("itemId") Long itemId ,

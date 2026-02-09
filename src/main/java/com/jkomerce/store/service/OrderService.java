@@ -1,5 +1,6 @@
 package com.jkomerce.store.service;
 
+import com.jkomerce.store.auth.SessionUserProvider;
 import com.jkomerce.store.domain.OrderStatus;
 import com.jkomerce.store.domain.OrderType;
 import com.jkomerce.store.dto.*;
@@ -20,16 +21,19 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final ItemMapper itemMapper;
     private final CartMapper cartMapper;
+    private final SessionUserProvider sessionUserProvider;
 
-    public OrderService(OrderMapper orderMapper, ItemMapper itemMapper, CartMapper cartMapper){
+    public OrderService(OrderMapper orderMapper, ItemMapper itemMapper, CartMapper cartMapper,
+                        SessionUserProvider sessionUserProvider) {
         this.orderMapper = orderMapper;
         this.itemMapper = itemMapper;
         this.cartMapper = cartMapper;
+        this.sessionUserProvider = sessionUserProvider;
     }
 
     @Transactional
     public OrderDTO createOrder(OrderCreateRequestDTO req, HttpSession session) {
-        Integer userId = getUserIdFromSession(session); // 내 플로젝트 세션 키에 맞춰 조정 가능
+        Long userId = sessionUserProvider.getRequiredUserId(session); // 내 플로젝트 세션 키에 맞춰 조정 가능
 
         //1) 총액 계산 + order_items 만들기
         Long totalAmount = 0L;
@@ -87,7 +91,7 @@ public class OrderService {
     @Transactional
     public Long createOrderFromCart(HttpSession session){
         //세션에서 UserId
-        Integer userId = getUserIdFromSession(session);
+        Long userId = sessionUserProvider.getRequiredUserId(session);
 
         //장바구니 확인
         Long cartId = cartMapper.selectActiveCartIdByUserId(userId);
@@ -145,16 +149,5 @@ public class OrderService {
         }
 
         return orderId;
-    }
-
-    private Integer getUserIdFromSession(HttpSession session) {
-        Object v = session.getAttribute("userId");
-        if(v instanceof Integer) return (Integer) v;
-
-        // 프로젝트마다 세션에 UserDTO를 넣는 경우도 있어서 fallback
-        Object userObj = session.getAttribute("user");
-        if (userObj instanceof UserDTO) return ((UserDTO) userObj).getId();
-
-        throw new UnauthorizedException("로그인이 필요합니다.");
     }
 }

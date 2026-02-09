@@ -8,9 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 public interface UserMapper {
 
     UserDTO findUserByLoginId(String loginId);
-    UserDTO selectUserById(int id);
+    UserDTO selectUserById(Long id);
     int insertUser(UserDTO userDTO);
     int updateUser(UserDTO userDTO);
-    int deleteUser(int id);
+    int deleteUser(Long id);
 
 }

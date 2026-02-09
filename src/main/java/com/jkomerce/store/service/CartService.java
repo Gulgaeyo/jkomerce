@@ -1,5 +1,6 @@
 package com.jkomerce.store.service;
 
+import com.jkomerce.store.auth.SessionUserProvider;
 import com.jkomerce.store.dto.*;
 import com.jkomerce.store.exception.UnauthorizedException;
 import com.jkomerce.store.mapper.CartMapper;
@@ -18,9 +19,10 @@ public class CartService {
 
     private final CartMapper cartMapper;
     private final ItemMapper itemMapper;
+    private final SessionUserProvider sessionUserProvider;
 
     @Transactional
-    public Long getOrCreateCartId(Integer userId){
+    public Long getOrCreateCartId(Long userId){
         Long cartId = cartMapper.selectActiveCartIdByUserId(userId);
 
         if(cartId == null){
@@ -39,7 +41,7 @@ public class CartService {
 
     @Transactional
     public List<CartItemDTO> addItem(CartItemAddRequestDTO req, HttpSession session) {
-        Integer userId = getUserIdFromSession(session);
+        Long userId = sessionUserProvider.getRequiredUserId(session);
 
         ItemDTO item = itemMapper.selectItemById(req.getItemId());
         if(item == null){
@@ -65,23 +67,8 @@ public class CartService {
 
 
 
-
-
-    /* 세션에서 userId 가져오기*/
-    private Integer getUserIdFromSession(HttpSession session) {
-        Object v = session.getAttribute("userId");
-        if(v instanceof Integer) return (Integer) v;
-
-        // 프로젝트마다 세션에 UserDTO를 넣는 경우도 있어서 fallback
-        Object userObj = session.getAttribute("user");
-        if (userObj instanceof UserDTO) return ((UserDTO) userObj).getId();
-
-        throw new UnauthorizedException("로그인이 필요합니다.");
-    }
-
-
     public List<CartItemDTO> getMyCartItems(HttpSession session){
-        Integer userId = getUserIdFromSession(session);
+        Long userId = sessionUserProvider.getRequiredUserId(session);
 
         Long cartId = cartMapper.selectActiveCartIdByUserId(userId);
 
@@ -93,7 +80,7 @@ public class CartService {
 
     @Transactional
     public List<CartItemDTO> updateItemQuantity(Long itemId, Integer quantity, HttpSession session){
-        Integer userId = getUserIdFromSession(session);
+        Long userId = sessionUserProvider.getRequiredUserId(session);
 
         if(itemId == null) throw new IllegalArgumentException("itemId가 필요압니다.");
         if(quantity == null) throw new IllegalArgumentException("quantity가 핑료합니다.");

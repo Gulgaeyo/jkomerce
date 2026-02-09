@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class OrderDetailResponseDTO {
     private Long orderId;
-    private Integer userId;
+    private Long userId;
     private String orderType;
     private Long totalAmount;
     private String status;

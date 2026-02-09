@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class BoardDTO {
 
     private Long id;
-    private Integer userId;
+    private Long userId;
     private String userName;
     private String title;
     private String content;

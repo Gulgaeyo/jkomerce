@@ -1,5 +1,6 @@
 package com.jkomerce.store.service;
 
+import com.jkomerce.store.auth.SessionUserProvider;
 import com.jkomerce.store.domain.OrderStatus;
 import com.jkomerce.store.domain.OrderType;
 import com.jkomerce.store.dto.OrderDTO;
@@ -17,9 +18,10 @@ import java.util.List;
 public class OrderQueryService {
 
     private final OrderMapper orderMapper;
+    private final SessionUserProvider sessionUserProvider;
 
     public OrderDetailResponseDTO getOrderDetail(Long orderId, HttpSession session) {
-        Integer userId = getUserIdFromSession(session);
+        Long userId = sessionUserProvider.getRequiredUserId(session);
 
         // 1) 내 주문인지까지 포함해서 조회
         OrderDTO order = orderMapper.selectOrderByIdAndUserId(orderId, userId);
@@ -46,7 +48,7 @@ public class OrderQueryService {
     }
 
     public List<OrderDTO> getMyOrders(Integer page, Integer size, String status, HttpSession session ){
-        Integer userId = getUserIdFromSession(session);
+        Long userId = sessionUserProvider.getRequiredUserId(session);
 
         int p = (page == null || page < 1) ? 1 : page;
         int s = (size == null || size < 1) ? 20 : Math.min(size, 100);
@@ -58,13 +60,6 @@ public class OrderQueryService {
 
 
         return orderMapper.selectOrdersByUserId(userId, s, offset, normalizedStatus);
-    }
-
-    private Integer getUserIdFromSession(HttpSession session) {
-        if(session == null) throw new IllegalStateException("세션이 없습니다.");
-        Object v = session.getAttribute("userId");
-        if(v == null) throw new IllegalStateException("로그인이 필요합니다.");
-        return (Integer) v;
     }
 }
 

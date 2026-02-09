@@ -23,10 +23,10 @@ public interface OrderMapper {
 
     // 주문 조회
     OrderDTO selectOrderByIdAndUserId(@Param("orderId") Long orderId,
-                                      @Param("userId") Integer userId);
+                                      @Param("userId") Long userId);
 
     List<OrderItemDTO> selectOrderItemsByOrderId(@Param("orderId") Long orderId);
-    List<OrderDTO> selectOrdersByUserId(@Param("userId") Integer userId,
+    List<OrderDTO> selectOrdersByUserId(@Param("userId") Long userId,
                                        @Param("limit") int limit, @Param("offset") int offset, @Param("status") String status);
 
     int updateOrderTotalAmount(@Param("orderId") Long orderId, @Param("totalAmount") Long totalAmount);

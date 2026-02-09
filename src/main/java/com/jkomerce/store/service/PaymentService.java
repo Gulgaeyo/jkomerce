@@ -58,7 +58,7 @@ public class PaymentService {
 
         PaymentDTO payment = new PaymentDTO();
         payment.setOrderId(req.getOrderId());
-        payment.setAmount(order.getTotalAmount().longValue());
+        payment.setAmount(order.getTotalAmount());
         payment.setStatus(PaymentStatus.REQUESTED.toDbValue());
         payment.setMethod(req.getMethod());
         payment.setProvider(req.getProvider());
