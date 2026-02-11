@@ -100,5 +100,30 @@ public class CartService {
 
     }
 
+    @Transactional
+    public List<CartItemDTO> clearMyCart(HttpSession session) {
+        Long userId = sessionUserProvider.getRequiredUserId(session);
+
+        Long cartId = cartMapper.selectActiveCartIdByUserId(userId);
+        if(cartId == null) return Collections.emptyList();
+
+        cartMapper.deleteCartItemsByCartId(cartId);
+        return Collections.emptyList();
+    }
+
+    @Transactional
+    public List<CartItemDTO> deleteCartItem(HttpSession session, Long itemId){
+
+        Long userId = sessionUserProvider.getRequiredUserId(session);
+
+        if(itemId == null) throw new IllegalArgumentException("itemId가 필요합니다.");
+
+        Long cartId = cartMapper.selectActiveCartIdByUserId(userId);
+        if(cartId == null) return Collections.emptyList();
+
+        cartMapper.deleteCartItem(cartId, itemId);
+        return cartMapper.selectCartItemsByCartId(cartId);
+    }
+
     
 }

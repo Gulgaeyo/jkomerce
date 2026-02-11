@@ -9,6 +9,7 @@ import com.jkomerce.store.mapper.CartMapper;
 import com.jkomerce.store.mapper.ItemMapper;
 import com.jkomerce.store.mapper.OrderMapper;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,20 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
     private final OrderMapper orderMapper;
     private final ItemMapper itemMapper;
     private final CartMapper cartMapper;
     private final SessionUserProvider sessionUserProvider;
-
-    public OrderService(OrderMapper orderMapper, ItemMapper itemMapper, CartMapper cartMapper,
-                        SessionUserProvider sessionUserProvider) {
-        this.orderMapper = orderMapper;
-        this.itemMapper = itemMapper;
-        this.cartMapper = cartMapper;
-        this.sessionUserProvider = sessionUserProvider;
-    }
 
     @Transactional
     public OrderDTO createOrder(OrderCreateRequestDTO req, HttpSession session) {
@@ -107,7 +101,7 @@ public class OrderService {
         OrderDTO order = new OrderDTO();
         order.setUserId(userId);
         order.setOrderType(OrderType.CART.toDbValue());
-        order.setTotalAmount(0L);
+        order.setTotalAmount(null);
         order.setStatus(OrderStatus.PENDING.toDbValue());;
         orderMapper.insertOrder(order);
 

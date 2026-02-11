@@ -37,4 +37,14 @@ public class CartController {
         return cartService.updateItemQuantity(itemId, q, session);
     }
 
+    @DeleteMapping("/items")
+    public List<CartItemDTO> clearMyCart(HttpSession session){
+        return cartService.clearMyCart(session);
+    }
+
+    @DeleteMapping("/items/{itemId}")
+    public List<CartItemDTO> clearCartItems(@PathVariable Long itemId, HttpSession session) {
+        return cartService.deleteCartItem(session, itemId);
+    }
+
 }
