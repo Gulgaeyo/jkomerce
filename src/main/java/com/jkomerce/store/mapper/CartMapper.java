@@ -4,6 +4,7 @@ package com.jkomerce.store.mapper;
 import com.jkomerce.store.dto.CartDTO;
 import com.jkomerce.store.dto.CartItemDTO;
 import com.jkomerce.store.dto.CartItemForOrderDTO;
+import com.jkomerce.store.dto.CartItemResponseDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,7 +27,7 @@ public interface CartMapper {
                                @Param("quantity") Integer quantity);
     int deleteCartItem(@Param("cartId") Long cartId,
                        @Param("itemId") Long itemId);
-    List<CartItemDTO> selectCartItemsByCartId(@Param("cartId") Long cartId);
+    List<CartItemResponseDTO> selectCartItemsByCartId(@Param("cartId") Long cartId);
     List<CartItemForOrderDTO> selectCartItemsForOrder(@Param("cartId") Long cartId);
 
     int deleteCartItemsByCartId(@Param("cartId") Long cartId);

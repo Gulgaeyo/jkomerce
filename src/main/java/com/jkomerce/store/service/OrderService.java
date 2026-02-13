@@ -101,7 +101,7 @@ public class OrderService {
         OrderDTO order = new OrderDTO();
         order.setUserId(userId);
         order.setOrderType(OrderType.CART.toDbValue());
-        order.setTotalAmount(null);
+        order.setTotalAmount(0L);
         order.setStatus(OrderStatus.PENDING.toDbValue());;
         orderMapper.insertOrder(order);
 

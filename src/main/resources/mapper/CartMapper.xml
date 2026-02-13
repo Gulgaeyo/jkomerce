@@ -61,17 +61,18 @@
            update_at = NOW()
     </insert>
 
-    <select id="selectCartItemsByCartId" resultMap="CartItemDTOMap">
+    <select id="selectCartItemsByCartId" resultType="com.jkomerce.store.dto.CartItemResponseDTO">
         SELECT
-            seq,
-            cart_id,
-            item_id,
-            quantity,
-            create_at,
-            update_at
-        FROM cart_items
-        WHERE cart_id = #{cartId}
-        ORDER BY seq ASC
+            ci.item_id  AS "itemId",
+            ci.quantity AS "quantity",
+            i.item_name AS "itemName",
+            i.price     AS "price"
+        FROM cart_items ci
+        JOIN items i
+          ON ci.item_Id = i.item_Id
+         AND i.delete_at IS NULL
+        WHERE ci.cart_id = #{cartId}
+        ORDER BY ci.seq ASC
     </select>
 
     <delete id="deleteCartItem">

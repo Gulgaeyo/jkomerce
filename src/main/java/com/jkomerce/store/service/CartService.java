@@ -40,7 +40,7 @@ public class CartService {
     }
 
     @Transactional
-    public List<CartItemDTO> addItem(CartItemAddRequestDTO req, HttpSession session) {
+    public List<CartItemResponseDTO> addItem(CartItemAddRequestDTO req, HttpSession session) {
         Long userId = sessionUserProvider.getRequiredUserId(session);
 
         ItemDTO item = itemMapper.selectItemById(req.getItemId());
@@ -62,12 +62,12 @@ public class CartService {
         int affected = cartMapper.upsertCartItem(cartId, req.getItemId(), req.getQuantity());
         if(affected == 0) throw new IllegalStateException("장바구니 반영 실패");
 
-        return cartMapper.selectCartItemsByCartId(cartId);
+        return toResponses(cartMapper.selectCartItemsByCartId(cartId));
     }
 
 
 
-    public List<CartItemDTO> getMyCartItems(HttpSession session){
+    public List<CartItemResponseDTO> getMyCartItems(HttpSession session){
         Long userId = sessionUserProvider.getRequiredUserId(session);
 
         Long cartId = cartMapper.selectActiveCartIdByUserId(userId);
@@ -75,11 +75,11 @@ public class CartService {
         // cart가 존재하지 않을 때 반응 200 + 빈 리스트
         if(cartId == null) return Collections.emptyList();
 
-        return cartMapper.selectCartItemsByCartId(cartId);
+        return toResponses(cartMapper.selectCartItemsByCartId(cartId));
     }
 
     @Transactional
-    public List<CartItemDTO> updateItemQuantity(Long itemId, Integer quantity, HttpSession session){
+    public List<CartItemResponseDTO> updateItemQuantity(Long itemId, Integer quantity, HttpSession session){
         Long userId = sessionUserProvider.getRequiredUserId(session);
 
         if(itemId == null) throw new IllegalArgumentException("itemId가 필요압니다.");
@@ -95,7 +95,7 @@ public class CartService {
             cartMapper.updateCartItemQuantity(cartId, itemId, quantity);
         }
 
-        return cartMapper.selectCartItemsByCartId(cartId);
+        return toResponses(cartMapper.selectCartItemsByCartId(cartId));
 
 
     }
@@ -112,7 +112,7 @@ public class CartService {
     }
 
     @Transactional
-    public List<CartItemDTO> deleteCartItem(HttpSession session, Long itemId){
+    public List<CartItemResponseDTO> deleteCartItem(HttpSession session, Long itemId){
 
         Long userId = sessionUserProvider.getRequiredUserId(session);
 
@@ -122,7 +122,20 @@ public class CartService {
         if(cartId == null) return Collections.emptyList();
 
         cartMapper.deleteCartItem(cartId, itemId);
-        return cartMapper.selectCartItemsByCartId(cartId);
+        return toResponses(cartMapper.selectCartItemsByCartId(cartId));
+    }
+
+    private CartItemResponseDTO toResponse(CartItemResponseDTO item) {
+        CartItemResponseDTO r = new CartItemResponseDTO();
+        r.setItemId(item.getItemId());
+        r.setQuantity(item.getQuantity());
+        r.setPrice(item.getPrice());
+        r.setItemName(item.getItemName());
+        return r;
+    }
+
+    private List<CartItemResponseDTO> toResponses(List<CartItemResponseDTO> items){
+        return items.stream().map(this::toResponse).toList();
     }
 
     
