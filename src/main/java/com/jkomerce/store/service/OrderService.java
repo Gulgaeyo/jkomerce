@@ -4,7 +4,6 @@ import com.jkomerce.store.auth.SessionUserProvider;
 import com.jkomerce.store.domain.OrderStatus;
 import com.jkomerce.store.domain.OrderType;
 import com.jkomerce.store.dto.*;
-import com.jkomerce.store.exception.UnauthorizedException;
 import com.jkomerce.store.mapper.CartMapper;
 import com.jkomerce.store.mapper.ItemMapper;
 import com.jkomerce.store.mapper.OrderMapper;
@@ -83,18 +82,26 @@ public class OrderService {
     }
 
     @Transactional
-    public Long createOrderFromCart(HttpSession session){
-        //세션에서 UserId
+    public Long createOrderFromCart(HttpSession session, String idempotencyKey){
+        // 세션에서 UserId
         Long userId = sessionUserProvider.getRequiredUserId(session);
 
-        //장바구니 확인
+        // idempotencyKey check (400)
+        if(idempotencyKey == null || idempotencyKey.isBlank()){
+            throw new IllegalArgumentException("idempotencyKey가 필요합니다.");
+        }
+
+        // 기존 주문 확인 -> 존재 시 기존 주문
+        OrderDTO existing = orderMapper.selectOrderByIdempotencyKey(idempotencyKey, userId);
+        if(existing != null){return existing.getOrderId();}
+
+        // 장바구니 존재 확인 (400)
         Long cartId = cartMapper.selectActiveCartIdByUserId(userId);
-        //400
         if(cartId == null) throw new IllegalArgumentException("장바구니가 비어있습니다");
 
 
+        // 장바구니 목록 확인 (400)
         List<CartItemForOrderDTO> items= cartMapper.selectCartItemsForOrder(cartId);
-        // 400
         if(items.isEmpty()) throw new IllegalArgumentException("장바구니가 비어있습니다.");
 
 
@@ -103,14 +110,25 @@ public class OrderService {
         order.setOrderType(OrderType.CART.toDbValue());
         order.setTotalAmount(0L);
         order.setStatus(OrderStatus.PENDING.toDbValue());;
-        orderMapper.insertOrder(order);
+        order.setIdempotencyKey(idempotencyKey);
+
+        try {
+            orderMapper.insertOrder(order);
+        } catch (Exception e){
+            // 유니크 충돌 시 기존 주문 반환
+            OrderDTO raced = orderMapper.selectOrderByIdempotencyKey(idempotencyKey, userId);
+            if(raced != null) return raced.getOrderId();
+            throw e;
+        }
+
 
         Long orderId = order.getOrderId();
         if(orderId == null) throw new IllegalArgumentException("orderId 생성 실패");
 
-        List<OrderItemDTO> orderItems = new ArrayList<>();
 
         Long totalAmount = 0L;
+        List<OrderItemDTO> orderItems = new ArrayList<>();
+
         for(CartItemForOrderDTO item : items){
             Long itemId = item.getItemId();
             Integer quantity = item.getQuantity();

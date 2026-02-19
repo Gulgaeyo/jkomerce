@@ -9,8 +9,8 @@
             parameterType="com.jkomerce.store.dto.OrderDTO"
             useGeneratedKeys="true"
             keyProperty="orderId">
-        INSERT INTO orders(user_id, order_type, total_amount, status, create_at)
-        VALUES (#{userId}, #{orderType}, #{totalAmount}, #{status}, NOW())
+        INSERT INTO orders(user_id, order_type, total_amount, status, idempotency_key,create_at)
+        VALUES (#{userId}, #{orderType}, #{totalAmount}, #{status}, #{idempotencyKey},NOW())
     </insert>
 
     <insert id="insertOrderItem"
@@ -104,5 +104,20 @@
         WHERE order_id = #{orderId}
           AND delete_at IS NULL
     </update>
+
+    <select id="selectOrderByIdempotencyKey" resultType="com.jkomerce.store.dto.OrderDTO">
+        SELECT
+            order_id AS "orderId",
+            user_id AS "userId",
+            order_type AS "orderType",
+            total_amount AS "totalAmount",
+            status AS "status",
+            create_at AS "createAt"
+        FROM orders
+        WHERE idempotency_key = #{idempotencyKey}
+          AND user_id = #{userId}
+          AND delete_at is null
+            LIMIT 1
+    </select>
 
 </mapper>

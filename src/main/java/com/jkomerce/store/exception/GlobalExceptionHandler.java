@@ -4,6 +4,9 @@ import com.jkomerce.store.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -16,6 +19,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handlerBadRequest(IllegalArgumentException e, HttpServletRequest req ){
         return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", e.getMessage(), req);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(
+            MethodArgumentNotValidException e,
+            HttpServletRequest req) {
+        FieldError fieldError = e.getBindingResult().getFieldError();
+        String message = (fieldError != null) ? fieldError.getDefaultMessage() : "요청 값이 올바르지 않습니다.";
+        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", message, req);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleNotReadable(
+            HttpMessageNotReadableException e,
+            HttpServletRequest req) {
+        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "요청 본문이 비어있거나 형식이 올바르지 않습니다.", req);
     }
 
     //409: 상태 충돌 (이미 PAID인데 approve, PENDING 아닌 주문 결제 시도 등)

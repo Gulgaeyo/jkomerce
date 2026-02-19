@@ -19,7 +19,7 @@
     <!--    ItemDTO selectItemById(int id);-->
     <select id="selectPaymentById" parameterType="long" resultType="com.jkomerce.store.dto.PaymentDTO">
         SELECT payment_id AS paymentId,
-               order_id AS orderID,
+               order_id AS orderId,
                amount,
                status,
                method,

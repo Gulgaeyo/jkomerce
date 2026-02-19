@@ -11,5 +11,6 @@ public class OrderDTO {
     private String orderType; // DIRECT / CART
     private Long totalAmount;
     private String status;    // PENDING / PAID
+    private String idempotencyKey;
     private LocalDateTime createAt;
 }

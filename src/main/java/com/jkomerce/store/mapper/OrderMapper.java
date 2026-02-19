@@ -30,4 +30,6 @@ public interface OrderMapper {
                                        @Param("limit") int limit, @Param("offset") int offset, @Param("status") String status);
 
     int updateOrderTotalAmount(@Param("orderId") Long orderId, @Param("totalAmount") Long totalAmount);
+    // 주문 멱등성 (중복 방어)
+    OrderDTO selectOrderByIdempotencyKey(@Param("idempotencyKey") String idempotencyKey, @Param("userId") Long userId);
 }

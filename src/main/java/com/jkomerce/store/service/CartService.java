@@ -43,15 +43,14 @@ public class CartService {
     public List<CartItemResponseDTO> addItem(CartItemAddRequestDTO req, HttpSession session) {
         Long userId = sessionUserProvider.getRequiredUserId(session);
 
+        // 요청 검증
+        // throw 400
+        if(req == null) throw new IllegalArgumentException("요청이 비어있습니다.");
         ItemDTO item = itemMapper.selectItemById(req.getItemId());
         if(item == null){
             // 401
             throw new IllegalArgumentException("상품이 존재하지 않습니다.");
         }
-
-        // 요청 검증
-        // throw 400
-        if(req == null) throw new IllegalArgumentException("요청이 비어있습니다.");
         if(req.getItemId() == null) throw new IllegalArgumentException("itemId가 필요합니다.");
         if(req.getQuantity() == null || req.getQuantity() <= 0)
             throw new IllegalArgumentException("수량이 올바르지 않습니다.");

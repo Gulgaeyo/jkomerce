@@ -1,5 +1,6 @@
 package com.jkomerce.store.controller;
 
+import com.jkomerce.store.dto.CartOrderCreateRequestDTO;
 import com.jkomerce.store.dto.OrderCreateRequestDTO;
 import com.jkomerce.store.dto.OrderDTO;
 import com.jkomerce.store.dto.OrderDetailResponseDTO;
@@ -7,6 +8,7 @@ import com.jkomerce.store.service.OrderQueryService;
 import com.jkomerce.store.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,8 +51,11 @@ public class OrderController {
     }
 
     @PostMapping("/cart")
-    public Map<String, Object> createOrderFromCart(HttpSession session) {
-        Long orderId = orderService.createOrderFromCart(session);
+    public Map<String, Object> createOrderFromCart(
+            @Valid @RequestBody CartOrderCreateRequestDTO req,
+            HttpSession session) {
+        String key = (req == null) ? null : req.getIdempotencyKey();
+        Long orderId = orderService.createOrderFromCart(session, key);
         return Map.of("orderId", orderId);
     }
 

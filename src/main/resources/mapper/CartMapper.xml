@@ -103,6 +103,8 @@
         WHERE cart_id = #{cartId}
     </delete>
 
+
+
     <!--&lt;!&ndash;    int restoreCartItem(Long cartId, Long itemId, Integer quantity);&ndash;&gt;-->
 <!--    <update id="restoreCartItem">-->
 <!--        UPDATE cart_items-->
