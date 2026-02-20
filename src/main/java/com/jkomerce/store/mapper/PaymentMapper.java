@@ -4,6 +4,8 @@ import com.jkomerce.store.dto.PaymentDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface PaymentMapper {
 
@@ -20,4 +22,9 @@ public interface PaymentMapper {
                               @Param("failReason") String failReason);
 
     PaymentDTO selectActiveRequestedByOrderId(@Param("orderId") Long orderId);
+
+    List<PaymentDTO> selectExpiredRequestedPayments(@Param("limit") int limit);
+
+    int updatePaymentToExpired(@Param("paymentId") Long paymentId,
+                               @Param("failReason") String failReason);
 }

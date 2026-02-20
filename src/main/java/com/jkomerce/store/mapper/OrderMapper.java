@@ -32,4 +32,7 @@ public interface OrderMapper {
     int updateOrderTotalAmount(@Param("orderId") Long orderId, @Param("totalAmount") Long totalAmount);
     // 주문 멱등성 (중복 방어)
     OrderDTO selectOrderByIdempotencyKey(@Param("idempotencyKey") String idempotencyKey, @Param("userId") Long userId);
+
+    //PENDING -> EXPIRED 전이 (성공 시 1)
+    int updateOrderToExpiredIfPending(@Param("orderId") Long orderId, @Param("status") String status);
 }

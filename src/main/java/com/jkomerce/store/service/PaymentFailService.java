@@ -26,8 +26,13 @@ public class PaymentFailService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void expirePaymentAndOrder(Long paymentId, Long orderId){
-        paymentMapper.updatePaymentToFailed(paymentId, PaymentStatus.FAILED.toDbValue());
-        orderMapper.updateOrderStatus(orderId, OrderStatus.EXPIRED.toDbValue());
+    public boolean expirePaymentAndOrder(Long paymentId, Long orderId){
+        int p = paymentMapper.updatePaymentToExpired(
+          paymentId,
+          PaymentStatus.EXPIRED.toDbValue()
+        );
+        if (p == 0) return false;
+        orderMapper.updateOrderToExpiredIfPending(orderId, OrderStatus.EXPIRED.toDbValue());
+        return true;
     }
 }

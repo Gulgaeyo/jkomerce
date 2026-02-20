@@ -120,4 +120,13 @@
             LIMIT 1
     </select>
 
+    <update id="updateOrderToExpiredIfPending">
+        UPDATE orders
+        SET status = #{status},
+            update_at = NOW()
+        WHERE order_id = #{orderId}
+          AND status = 'PENDING'
+          AND delete_at IS NULL
+    </update>
+
 </mapper>
